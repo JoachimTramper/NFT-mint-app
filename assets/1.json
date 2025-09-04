@@ -1,0 +1,28 @@
+{
+  "name": "My NFT #1",
+  "symbol": "NFT",
+  "description": "This is the description for NFT #1.",
+  "seller_fee_basis_points": 500,
+  "image": "1.png",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Blue"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "1.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkgwBUNvXkHgs",
+        "share": 100
+      }
+    ]
+  }
+}

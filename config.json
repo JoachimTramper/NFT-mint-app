@@ -1,0 +1,29 @@
+{
+  "uploadMethod": "bundlr",
+  "number": 3,
+  "symbol": "NFT",
+  "sellerFeeBasisPoints": 500,
+  "isSequential": true,
+  "creators": [
+    {
+      "address": "7vygjX9UySeHBbMegwzPkmfCAMyRFbHtjcyFUAXXa3DG",
+      "share": 100
+    }
+  ],
+  "isMutable": true,
+  "retainAuthority": true,
+  "goLiveDate": "now",
+  "collection": {
+    "name": "My NFT Collection",
+    "family": "MyNFTs"
+  },
+  "ruleSet": null,
+  "guards": {
+    "default": {
+      "solPayment": {
+        "value": 0.01,
+        "destination": "7vygjX9UySeHBbMegwzPkmfCAMyRFbHtjcyFUAXXa3DG"
+      }
+    }
+  }
+}

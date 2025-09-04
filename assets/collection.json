@@ -1,0 +1,17 @@
+{
+  "name": "My NFT Collection",
+  "symbol": "NFT",
+  "description": "This is the description for my NFT collection.",
+  "seller_fee_basis_points": 500,
+  "image": "collection.png",
+  "attributes": [],
+  "properties": {
+    "files": [
+      {
+        "uri": "collection.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+}

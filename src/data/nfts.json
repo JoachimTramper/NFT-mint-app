@@ -1,0 +1,17 @@
+{
+  "0": {
+    "name": "My NFT #0",
+    "image_link": "https://gateway.irys.xyz/8diaucyVUYXobSQBjcFMxwTPVpSL3ZrmqxQfaebusEDz?ext=png",
+    "metadata_link": "https://gateway.irys.xyz/6X2fyeMpfoZwKX1wRVtPGzBBYZu5gZPBQ4hjxgPfbmuf"
+  },
+  "1": {
+    "name": "My NFT #1",
+    "image_link": "https://gateway.irys.xyz/A3uaMZ9pgPyccZSknodp6m4xZBBrU7VFcxtbNJLXAtwU?ext=png",
+    "metadata_link": "https://gateway.irys.xyz/GVitte2176E4DVoeF2zKukBaJxxercgKB6Ps3Nur3EoT"
+  },
+  "2": {
+    "name": "My NFT #2",
+    "image_link": "https://gateway.irys.xyz/JdAR9VRLiBYvLS7Y1ot1ruyFbofhricCkTjYSJdx478?ext=png",
+    "metadata_link": "https://gateway.irys.xyz/2ThsL1pKHgDF1DtFbDfkAUmxA6uZgFXTnDKYF4KKHRH5"
+  }
+}
