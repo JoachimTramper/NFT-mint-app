@@ -1,69 +1,34 @@
-# React + TypeScript + Vite
+# Solana Umi Candy Machine NFT Mint (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Last commit](https://img.shields.io/github/last-commit/<YOUR_GH_USER>/<YOUR_REPO>)](#)
+[![License](https://img.shields.io/badge/license-MIT-informational)](./LICENSE)
 
-Currently, two official plugins are available:
+Minimal devnet mint dApp using **Umi + @metaplex-foundation/mpl-candy-machine (v3)**.
+Reads price from **Candy Guard (solPayment)** and mints NFTs via a simple React UI.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+> No backend required. Built with Vite + React + TypeScript.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Mint NFTs** via Umi `mintV2` (Candy Machine v3)
+- Read **Candy Guard** price (`solPayment.value.lamports.basisPoints`)
+- Per-card price + **remaining / sold-out** (button disabled when sold out)
+- **Explorer link** after successful mint
+- Simple navbar + routing (root redirects to `/select-mint`)
+- Config via `.env` (RPC / Candy Machine / Collection)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+> Uses **devnet**. Make sure your wallet has devnet SOL (airdrop) before minting.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Quick start
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**macOS/Linux**
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm i
+cp .env.devnet .env   # demo-config → direct minting on devnet
+npm run dev
 ```
