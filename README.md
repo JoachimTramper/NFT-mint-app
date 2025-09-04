@@ -1,7 +1,6 @@
 # Solana Umi Candy Machine NFT Mint (React + Vite)
 
-[![Last commit](https://img.shields.io/github/last-commit/<YOUR_GH_USER>/<YOUR_REPO>)](#)
-[![License](https://img.shields.io/badge/license-MIT-informational)](./LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/JoachimTramper/NFT-mint-app)](#)
 
 Minimal devnet mint dApp using **Umi + @metaplex-foundation/mpl-candy-machine (v3)**.
 Reads price from **Candy Guard (solPayment)** and mints NFTs via a simple React UI.
