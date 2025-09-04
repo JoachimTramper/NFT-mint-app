@@ -28,6 +28,14 @@ Reads price from **Candy Guard (solPayment)** and mints NFTs via a simple React 
 
 ```bash
 npm i
-cp .env.devnet .env   # demo-config → direct minting on devnet
+cp .env.devnet .env
+npm run dev
+```
+
+**Windows**
+
+```bash
+npm i
+Copy-Item .env.devnet .env
 npm run dev
 ```
