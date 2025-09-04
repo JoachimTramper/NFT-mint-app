@@ -15,8 +15,8 @@ import {
 
 import nfts from "../data/nfts.json";
 
-const CANDY_MACHINE = import.meta.env.VITE_CANDY_MACHINE;
-const COLLECTION_MINT = import.meta.env.VITE_COLLECTION_MINT;
+const CANDY_MACHINE = import.meta.env.VITE_CANDY_MACHINE!;
+const COLLECTION_MINT = import.meta.env.VITE_COLLECTION_MINT!;
 
 export default function SelectMint() {
   const wallet = useWallet();
@@ -25,6 +25,17 @@ export default function SelectMint() {
   const [loadingPrice, setLoadingPrice] = useState(false);
   const [msg, setMsg] = useState("");
   const [mintingIndex, setMintingIndex] = useState<number | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  // friendly error messages
+  const friendlyError = (e: any) => {
+    const m = String(e?.message ?? e ?? "").toLowerCase();
+    if (m.includes("insufficient"))
+      return "❌ Insufficient SOL on devnet. Airdrop and try again.";
+    if (m.includes("user rejected") || m.includes("rejected the request"))
+      return "⛔ Transaction rejected by wallet.";
+    return "❌ Mint failed. Check your balance and guard requirements, then try again.";
+  };
 
   // Umi instance (RPC = devnet) + candy machine plugin + wallet identity
   const umi = useMemo(() => {
@@ -33,32 +44,42 @@ export default function SelectMint() {
     return u;
   }, [wallet]);
 
-  // Price from Candy Guard (default guard → solPayment)
+  // Price + remaining from Candy Machine/Guard
   useEffect(() => {
     (async () => {
       if (!wallet.connected) {
         setPrice(null);
+        setRemaining(null);
         return;
       }
       setLoadingPrice(true);
       try {
         const cm = await fetchCandyMachine(umi, publicKey(CANDY_MACHINE)); // mintAuthority = guard
-        const guard = await fetchCandyGuard(umi, cm.mintAuthority);
 
+        // calculate remaining from Candy Machine state
+        const itemsAvailable = Number(
+          (cm as any).itemsAvailable ?? (cm as any).data?.itemsAvailable ?? 0
+        );
+        const itemsMinted = Number(
+          (cm as any).itemsMinted ?? (cm as any).itemsRedeemed ?? 0
+        );
+        const rem = Math.max(itemsAvailable - itemsMinted, 0);
+        setRemaining(Number.isFinite(rem) ? rem : null);
+
+        // price from Candy Guard (solPayment)
+        const guard = await fetchCandyGuard(umi, cm.mintAuthority);
         const solPay = guard.guards?.solPayment; // Option<SolPayment>
         if (solPay && isSome(solPay)) {
-          const lamportsBp = solPay.value.lamports.basisPoints;
-          const lamports =
-            typeof lamportsBp === "bigint"
-              ? Number(lamportsBp)
-              : Number(lamportsBp);
-          setPrice(lamports / LAMPORTS_PER_SOL); // e.g. 10000000 / 1e9 = 0.01
+          const lamportsBp = solPay.value.lamports.basisPoints; // bigint
+          const lamports = Number(lamportsBp);
+          setPrice(lamports / LAMPORTS_PER_SOL); // bv. 10000000 / 1e9 = 0.01
         } else {
           setPrice(null);
         }
       } catch (e) {
         console.error(e);
         setPrice(null);
+        setRemaining(null);
       } finally {
         setLoadingPrice(false);
       }
@@ -86,15 +107,19 @@ export default function SelectMint() {
         collectionMint: publicKey(COLLECTION_MINT),
         collectionUpdateAuthority,
         nftMint,
-        // mintArgs: {} // add if you later use guards with args
       }).sendAndConfirm(umi);
 
-      setMsg(`✅ Mint success. Tx: ${result.signature}`);
+      setMsg(
+        `✅ Mint success. View on explorer: https://explorer.solana.com/tx/${result.signature}?cluster=devnet`
+      );
+
+      // remaining update locally
+      setRemaining((prev) =>
+        typeof prev === "number" ? Math.max(prev - 1, 0) : prev
+      );
     } catch (e) {
       console.error(e);
-      setMsg(
-        "❌ Mint failed. Check your balance and guard requirements, then try again."
-      );
+      setMsg(friendlyError(e));
     } finally {
       setMintingIndex(null);
     }
@@ -106,6 +131,17 @@ export default function SelectMint() {
   return (
     <div>
       <h2>Select an NFT to Mint</h2>
+
+      {/* status at the top */}
+      <p style={{ margin: "0.5rem 0" }}>
+        {loadingPrice
+          ? "Loading mint info..."
+          : remaining === 0
+          ? "🛑 Sold out"
+          : remaining != null
+          ? `Remaining: ${remaining}`
+          : "—"}
+      </p>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
         {Object.entries(nfts)
@@ -141,10 +177,16 @@ export default function SelectMint() {
 
               <button
                 onClick={() => handleMint(index)}
-                disabled={mintingIndex !== null}
+                disabled={
+                  mintingIndex !== null || loadingPrice || remaining === 0
+                }
                 style={{ width: "100%" }}
               >
-                {mintingIndex === index ? "Minting..." : "Mint"}
+                {mintingIndex === index
+                  ? "Minting..."
+                  : remaining === 0
+                  ? "Sold out"
+                  : "Mint"}
               </button>
             </div>
           ))}

@@ -13,8 +13,8 @@ import {
   mintV2,
 } from "@metaplex-foundation/mpl-candy-machine";
 
-const CANDY_MACHINE = import.meta.env.VITE_CANDY_MACHINE;
-const COLLECTION_MINT = import.meta.env.VITE_COLLECTION_MINT;
+const CANDY_MACHINE = import.meta.env.VITE_CANDY_MACHINE!;
+const COLLECTION_MINT = import.meta.env.VITE_COLLECTION_MINT!;
 
 export default function RandomMint() {
   const wallet = useWallet();
@@ -24,6 +24,16 @@ export default function RandomMint() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [price, setPrice] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Friendly error messages
+  const friendlyError = (e: any) => {
+    const msg = String(e?.message ?? e ?? "").toLowerCase();
+    if (msg.includes("insufficient"))
+      return "❌ Insufficient SOL on devnet. Please airdrop and try again.";
+    if (msg.includes("user rejected") || msg.includes("rejected the request"))
+      return "⛔ Transaction rejected by wallet.";
+    return "❌ Mint failed. Check your balance and guard requirements, then try again.";
+  };
 
   // Umi instance (RPC = devnet) + candy machine plugin + wallet identity
   const umi = useMemo(() => {
@@ -54,12 +64,9 @@ export default function RandomMint() {
       const guard = await fetchCandyGuard(umi, cm.mintAuthority);
       const solPay = guard.guards?.solPayment; // Option<SolPayment>
       if (solPay && isSome(solPay)) {
-        // Umi: lamports is an Amount → use .basisPoints (bigint)
+        // Umi: lamports is Amount → .basisPoints (bigint)
         const lamportsBp = solPay.value.lamports.basisPoints;
-        const lamports =
-          typeof lamportsBp === "bigint"
-            ? Number(lamportsBp)
-            : Number(lamportsBp);
+        const lamports = Number(lamportsBp);
         setPrice(lamports / LAMPORTS_PER_SOL); // 10000000 / 1e9 = 0.01
       } else {
         setPrice(null);
@@ -106,7 +113,7 @@ export default function RandomMint() {
       }).sendAndConfirm(umi);
 
       setMessage(
-        `✅ Mint success. Tx: https://explorer.solana.com/tx/${result.signature}?cluster=devnet`
+        `✅ Mint success. View on explorer: https://explorer.solana.com/tx/${result.signature}?cluster=devnet`
       );
       // Update local counter
       setRemaining((prev) =>
@@ -114,16 +121,7 @@ export default function RandomMint() {
       );
     } catch (err: any) {
       console.error(err);
-      const txt = String(err?.message ?? err);
-      if (txt.toLowerCase().includes("insufficient")) {
-        setMessage(
-          "❌ Insufficient SOL on devnet. Please airdrop and try again."
-        );
-      } else {
-        setMessage(
-          "❌ Mint failed. Check your balance and guard requirements, then try again."
-        );
-      }
+      setMessage(friendlyError(err));
     } finally {
       setIsMinting(false);
     }
@@ -135,7 +133,14 @@ export default function RandomMint() {
 
   return (
     <div>
-      <p>Remaining NFTs: {loading ? "Loading..." : remaining ?? "—"}</p>
+      <p>
+        {loading
+          ? "Loading mint info..."
+          : remaining === 0
+          ? "🛑 Sold out"
+          : `Remaining NFTs: ${remaining ?? "—"}`}
+      </p>
+
       <p>
         Mint Price:{" "}
         {loading ? (
@@ -146,12 +151,19 @@ export default function RandomMint() {
           "—"
         )}
       </p>
+
+      {/* Optional: extra sold-out label near button */}
+      {remaining === 0 && !loading && (
+        <p style={{ color: "#c00", margin: "0.25rem 0" }}>🛑 Sold out</p>
+      )}
+
       <button
         onClick={handleMint}
         disabled={isMinting || loading || remaining === 0}
       >
-        {isMinting ? "Minting..." : "Mint NFT"}
+        {isMinting ? "Minting..." : remaining === 0 ? "Sold out" : "Mint NFT"}
       </button>
+
       {message && <p style={{ marginTop: "0.75rem" }}>{message}</p>}
     </div>
   );
